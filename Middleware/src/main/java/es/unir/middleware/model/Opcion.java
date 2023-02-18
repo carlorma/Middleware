@@ -7,7 +7,6 @@ import lombok.Data;
 
 @Data
 @JsonDeserialize
-@AllArgsConstructor
 public class Opcion {
 	
     protected String value;

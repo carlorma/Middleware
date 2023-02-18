@@ -1,8 +1,12 @@
 package es.unir.middleware;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.Data;
 import springfox.documentation.builders.PathSelectors;
@@ -24,4 +28,9 @@ public class MiddlewareApplication {
           .paths(PathSelectors.any())                          
           .build();                                           
     }
+    @Bean
+    public ObjectMapper objectMapper() {
+    	return new ObjectMapper();
+    }
+ 
 }

@@ -1,10 +1,10 @@
-package es.unir.middleware.model.service;
+package es.unir.middleware.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import es.gob.administracionelectronica.notifica.ws.notificaws_v2._1_0.altaRemesaEnvios.AltaRemesaEnvios;
-import es.gob.administracionelectronica.notifica.ws.notificaws_v2._1_0.altaRemesaEnvios.ResultadoAltaRemesaEnvios;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import es.unir.middleware.model.Destinatarios;
 import es.unir.middleware.model.EntregaDEH;
 import es.unir.middleware.model.EntregaPostal;
@@ -13,13 +13,20 @@ import es.unir.middleware.model.Envios;
 import es.unir.middleware.model.Persona;
 import es.unir.middleware.model.Remesa;
 import es.unir.middleware.soap.ClienteSOAPNotifica;
+import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.AltaRemesaEnvios;
+import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.ResultadoAltaRemesaEnvios;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
+@Slf4j
 @Service
 public class RemesaService {
 	@Autowired
 	Conversor notificaConversor;
+	@Autowired
+	ObjectMapper objectMapper;
+	
 	ClienteSOAPNotifica notificaClient;
 	
 	public Remesa asignarEnvio(Remesa remesa, Envio envio) {
@@ -53,7 +60,7 @@ public class RemesaService {
 	}
 
 	public Envio getInfoEnvio(String idEnvio) {
-		Envio envio = new Envio("12", "refEmisor", new Persona("38109346W", "Carmen", "Lorca Mateo", "razón solcial", "c@uv.es", "", ""),new Destinatarios(),new EntregaPostal(), new EntregaDEH(false, idEnvio));
+		Envio envio = new Envio();
 		envio.setIdEnvio("12");
 		//notificaConversor.
 		//Buscar información del envío

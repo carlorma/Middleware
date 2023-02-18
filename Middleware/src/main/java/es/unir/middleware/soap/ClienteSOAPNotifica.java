@@ -5,20 +5,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 
-import es.gob.administracionelectronica.notifica.ws.notificaws_v2._1_0.altaRemesaEnvios.ResultadoAltaRemesaEnvios;
-import es.gob.administracionelectronica.notifica.ws.notificaws_v2._1_0.infoEnvioV2.ResultadoInfoEnvioV2;
+import es.unir.middleware.service.RemesaService;
+import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.AltaRemesaEnvios;
+import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.ResultadoAltaRemesaEnvios;
+import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.infoenviov2.InfoEnvioV2;
+import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.infoenviov2.ResultadoInfoEnvioV2;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class ClienteSOAPNotifica extends WebServiceGatewaySupport{
-	@Autowired
-	private static Logger logger;
 	public static final String CODIGO_ORGANISMO_EMISOR = "U01800001";
 	public ClienteSOAPNotifica() {
 		// TODO Auto-generated constructor stub
 	}
 	
 
-	public ResultadoAltaRemesaEnvios altaRemesaEnvio(es.gob.administracionelectronica.notifica.ws.notificaws_v2._1_0.altaRemesaEnvios.AltaRemesaEnvios peticion ) throws Exception{
+	public ResultadoAltaRemesaEnvios altaRemesaEnvio(AltaRemesaEnvios peticion ) throws Exception{
 		ResultadoAltaRemesaEnvios respuesta=null;
 		try {
 			getWebServiceTemplate().marshalSendAndReceive("http://localhost:8088/mockNotificaWs/altaRemesaEnvios", respuesta);
@@ -30,7 +33,7 @@ public class ClienteSOAPNotifica extends WebServiceGatewaySupport{
 		
 	}
 
-	public ResultadoInfoEnvioV2 infoEnvioV2(es.gob.administracionelectronica.notifica.ws.notificaws_v2._1_0.infoEnvioV2.InfoEnvioV2 peticion ) throws Exception{
+	public ResultadoInfoEnvioV2 infoEnvioV2(InfoEnvioV2 peticion ) throws Exception{
 		
 		ResultadoInfoEnvioV2 respuesta=null;
 		getWebServiceTemplate().marshalSendAndReceive("http://localhost:8088//mockNotificaWs/infoEnvioV2", respuesta);

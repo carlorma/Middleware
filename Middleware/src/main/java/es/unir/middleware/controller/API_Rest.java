@@ -1,5 +1,9 @@
 package es.unir.middleware.controller;
 
+import java.util.ArrayList;
+import java.util.GregorianCalendar;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,11 +13,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import es.unir.middleware.model.Destinatarios;
 import es.unir.middleware.model.Documento;
+import es.unir.middleware.model.EntregaPostal;
 import es.unir.middleware.model.Envio;
+import es.unir.middleware.model.Envios;
+import es.unir.middleware.model.Opcion;
+import es.unir.middleware.model.Opciones;
 import es.unir.middleware.model.Persona;
 import es.unir.middleware.model.Remesa;
-import es.unir.middleware.model.service.RemesaService;
+import es.unir.middleware.service.RemesaService;
 import lombok.Data;
 
 
@@ -23,10 +32,11 @@ import lombok.Data;
 public class API_Rest {
 	@Autowired
 	RemesaService remesaService;
-	
+	@Autowired
+	ObjectMapper objectMapper;
 	Documento documento=new Documento();
 	
-	@GetMapping(value ="/remesa")
+	@GetMapping(value ="/remesas")
 	public Remesa obtenerRemesa(String idRemesa) {
 		Remesa remesa= new Remesa();
 		remesa.setIdRemesa(idRemesa);
@@ -35,20 +45,60 @@ public class API_Rest {
 		remesa.setDescripcion(idRemesa);
 		documento.setContenido(null);
 		remesa.setDocumento(null);
-		remesa.setEnvios(null);
-		remesa.setFechaEnvioProgramado(null);
-		remesa.setOpcionesRemesa(null);
+		
+		Envios envios = new Envios();
+		List<Envio> listadeEnvios= new ArrayList<Envio>();
+		
+		Envio envioRest= new Envio();
+		envioRest.setIdEnvio("idEnvio");
+		envioRest.setEntregaPostal(new EntregaPostal());
+		envioRest.setReferenciaEmisor("Referencia del emisor");
+		Destinatarios destinatarios = new Destinatarios();
+		List<Persona> listadeDestinatarios= new ArrayList<Persona>();
+		Persona personaDest= new Persona();
+		personaDest.setApellidos("Lorca Mateo");
+		personaDest.setNombre("Carmen");
+		personaDest.setNif("38109346W");
+		personaDest.setTelefono("321654987");
+		personaDest.setEmail("Carmen.lorca@gmail.com");
+		listadeDestinatarios.add(personaDest);
+		personaDest= new Persona();
+		personaDest.setApellidos("Martinez Gil");
+		personaDest.setNombre("David");
+		personaDest.setNif("73385978Q");
+		personaDest.setTelefono("111111111");
+		personaDest.setEmail("vidito72@gmail.com");
+		listadeDestinatarios.add(personaDest);
+		destinatarios.setDestinatario(listadeDestinatarios);
+		envioRest.setDestinatarios(destinatarios);
+		Persona personaTit= new Persona();
+		personaTit.setApellidos("Martinez Lorca");
+		personaTit.setNombre("Irene");
+		personaTit.setNif("14578449Q");
+		personaTit.setTelefono("222222222");
+		personaTit.setEmail("irenemartinezlorca@gmail.com");
+		envioRest.setTitular(personaTit);
+		listadeEnvios.add(envioRest);
+		envios.setEnvio(listadeEnvios);
+		remesa.setEnvios(envios);
+		GregorianCalendar c=new GregorianCalendar();
+		remesa.setFechaEnvioProgramado(c);
+		
+		Opciones opcionesRemesa= new Opciones();
+		List<Opcion> listadeOpciones= new ArrayList<Opcion>();
+		Opcion opcion= new Opcion();
+		opcion.setTipo("Tip_opcion1");
+		opcion.setValue("valorOpcion1");
+		listadeOpciones.add(opcion);
+		opcion= new Opcion();
+		opcion.setTipo("Tip_opcion2");
+		listadeOpciones.add(opcion);
+		opcionesRemesa.setOpcion(listadeOpciones);
+		remesa.setOpcionesRemesa(opcionesRemesa);
 		remesa.setProcedimiento(idRemesa);
 		remesa.setTipoEnvio(null);
 		
-		
-		Persona dest = new Persona("38109346W","Carmen","Lorca Mateo","razon social","carmen.lorca@uv.es","321654987","codDest");
-		Persona dest1= new Persona("73385978Q","David","Martínez Gil","razon social","vidito72@gmail.com","321654987","codDest");
-		Persona dest2= new Persona("27154280C","Ade","Mateo Hernández","razon social","adelamateohernandez@gmail.com","321654987","codDest");
-		Persona dest3= new Persona("44658978F","Irene","Martínez Lorca","razon social","IriMartinezLorca@gmail.com","321654987","codDest");
 		String result ="";
-	    
-
 	    try {
 			result = new ObjectMapper().writeValueAsString(remesa);
 		} catch (JsonProcessingException e) {
@@ -59,14 +109,14 @@ public class API_Rest {
 		return remesa;
 	}
 	//Realizar envío de remesa con envíos
-	@PostMapping(value ="/remesa")
+	@PostMapping(value ="/remesas")
 	public Remesa enviaRemesa(Remesa remesaParam) {
 		
 		remesaService.invocarAltaRemesaEnvio(remesaParam);
 		return remesaParam;
 	}
 	
-	@GetMapping(value ="/remesa/envio")
+	@GetMapping(value ="/remesas/envio")
 	public Envio getInfoEnvio(String idEnvio) {
 		return remesaService.getInfoEnvio(idEnvio);
 	}

@@ -7,7 +7,7 @@ import lombok.Data;
 
 @Data
 @JsonDeserialize
-@AllArgsConstructor
+
 public class Envio {
 	private String idEnvio;
 	protected String referenciaEmisor;
