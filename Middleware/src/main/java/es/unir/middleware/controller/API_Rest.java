@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import es.unir.middleware.model.Destinatarios;
@@ -36,8 +35,21 @@ public class API_Rest {
 	ObjectMapper objectMapper;
 	Documento documento=new Documento();
 	
-	@GetMapping(value ="/remesas")
-	public Remesa obtenerRemesa(String idRemesa) {
+	//Realizar envío de remesa con envíos
+	@PostMapping(value ="/remesas" )
+	public Remesa enviaRemesa(Remesa remesaParam) {
+		
+		remesaService.invocarAltaRemesaEnvio(remesaParam);
+		return remesaParam;
+	}
+	
+	//Obtener información de envío
+	@GetMapping(value ="/remesas/envio{idEnvio}")
+	public Envio getInfoEnvio(String idEnvio) {
+		return remesaService.getInfoEnvio(idEnvio);
+	}
+	
+	private Remesa crearNuevaRemesa(String idRemesa) {
 		Remesa remesa= new Remesa();
 		remesa.setIdRemesa(idRemesa);
 		remesa.setAplicacion(idRemesa);
@@ -97,28 +109,6 @@ public class API_Rest {
 		remesa.setOpcionesRemesa(opcionesRemesa);
 		remesa.setProcedimiento(idRemesa);
 		remesa.setTipoEnvio(null);
-		
-		String result ="";
-	    try {
-			result = new ObjectMapper().writeValueAsString(remesa);
-		} catch (JsonProcessingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	    
 		return remesa;
 	}
-	//Realizar envío de remesa con envíos
-	@PostMapping(value ="/remesas")
-	public Remesa enviaRemesa(Remesa remesaParam) {
-		
-		remesaService.invocarAltaRemesaEnvio(remesaParam);
-		return remesaParam;
-	}
-	
-	@GetMapping(value ="/remesas/envio")
-	public Envio getInfoEnvio(String idEnvio) {
-		return remesaService.getInfoEnvio(idEnvio);
-	}
-	
 }

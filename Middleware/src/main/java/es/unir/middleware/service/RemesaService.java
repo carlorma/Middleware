@@ -19,7 +19,6 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
-@Slf4j
 @Service
 public class RemesaService {
 	@Autowired
