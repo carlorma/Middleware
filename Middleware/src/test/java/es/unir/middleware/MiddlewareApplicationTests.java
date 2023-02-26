@@ -7,10 +7,10 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import es.unir.middleware.controller.API_Rest;
+import es.unir.middleware.controller.MiddlewareApiRest;
 
 
-@WebMvcTest(API_Rest.class)
+@WebMvcTest(MiddlewareApiRest.class)
 class MiddlewareApplicationTests {
 
 	String provaEnviament="{\"idRemesa\":\"5\",\"tipoEnvio\":null,\"concepto\":\"5\",\"descripcion\":\"5\",\"fechaEnvioProgramado\":1676745751031,\"proced"

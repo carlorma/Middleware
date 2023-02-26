@@ -1,14 +1,10 @@
 package es.unir.middleware.soap;
 
-import org.slf4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.ws.client.core.support.WebServiceGatewaySupport;
 
-import es.unir.middleware.service.RemesaService;
 import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.AltaRemesaEnvios;
 import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.ResultadoAltaRemesaEnvios;
-import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.infoenviov2.InfoEnvioV2;
 import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.infoenviov2.ResultadoInfoEnvioV2;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,7 +29,7 @@ public class ClienteSOAPNotifica extends WebServiceGatewaySupport{
 		
 	}
 
-	public ResultadoInfoEnvioV2 infoEnvioV2(InfoEnvioV2 peticion ) throws Exception{
+	public ResultadoInfoEnvioV2 infoEnvioV2(String idenvio) throws Exception{
 		
 		ResultadoInfoEnvioV2 respuesta=null;
 		getWebServiceTemplate().marshalSendAndReceive("http://localhost:8088//mockNotificaWs/infoEnvioV2", respuesta);

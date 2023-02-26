@@ -15,6 +15,7 @@ import es.unir.middleware.model.Remesa;
 import es.unir.middleware.soap.ClienteSOAPNotifica;
 import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.AltaRemesaEnvios;
 import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.ResultadoAltaRemesaEnvios;
+import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.infoenviov2.ResultadoInfoEnvioV2;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -37,33 +38,43 @@ public class RemesaService {
 		return remesa;
 	}
 	
-	public ResultadoAltaRemesaEnvios invocarAltaRemesaEnvio(Remesa remesa) {
+	public Remesa invocarAltaRemesaEnvio(Remesa remesa) throws Exception{
 		//Transformar  Datos para envío a Notifica
 		AltaRemesaEnvios altaRemesaEnvios=null;
-		ResultadoAltaRemesaEnvios resultado=null;
+		ResultadoAltaRemesaEnvios resultadoSOAP=null;
+		Remesa resultado=null;
 		try {
 			altaRemesaEnvios = notificaConversor.convierteAltaRemesaEnviosJsonToSOAP(remesa);
 			//Invocación servicio web altaRemesaEnvio
-			notificaClient = new ClienteSOAPNotifica();
-			resultado=notificaClient.altaRemesaEnvio(altaRemesaEnvios);
+			resultadoSOAP=notificaClient.altaRemesaEnvio(altaRemesaEnvios);
 			//Recuperar respuesta
+			resultado= notificaConversor.convierteResultadoAltaRemesaSoapToRest(resultadoSOAP);
 			//Actualizar datos Remesa
 			//int idEnvio=0;
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw e;
+			
 		}
-		
-		
 		return resultado;
 	}
 
-	public Envio getInfoEnvio(String idEnvio) {
+	public Envio getInfoEnvio(String idEnvio) throws Exception{
 		Envio envio = new Envio();
 		envio.setIdEnvio("12");
-		//notificaConversor.
-		//Buscar información del envío
-		return envio;
+		ResultadoInfoEnvioV2 resultadoSOAP= null;
+		Envio resultado=null;
+		try {
+			resultadoSOAP= notificaClient.infoEnvioV2(idEnvio);
+			resultado=notificaConversor.convierteResultadoInfoEnvioV2SoapToRest(resultadoSOAP);
+		} catch (Exception e) {
+			throw e;
+		}
+		return resultado;
+	}
+
+	public boolean comprobarUsuarioAutorizado(String idEnvio) {
+		// Se comprobaría  en base de datos que el usuario que realiza la petición de información es el mismo que envió la remesa
+		return true;
 	}
 	
 	

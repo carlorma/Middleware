@@ -1,11 +1,11 @@
 package es.unir.middleware.service;
 
-import java.util.GregorianCalendar;
+import java.util.Iterator;
+import java.util.List;
 
-import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 
-import org.apache.axis.utils.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,34 +19,32 @@ import es.unir.middleware.model.Opcion;
 import es.unir.middleware.model.Persona;
 import es.unir.middleware.model.Remesa;
 import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.AltaRemesaEnvios;
+import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.ResultadoAltaRemesaEnvios;
+import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.ResultadoEnvio;
 import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.infoenviov2.Destinatario;
-import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.infoenviov2.InfoEnvioV2;
-import lombok.extern.slf4j.Slf4j;
-@Slf4j
+import https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.infoenviov2.ResultadoInfoEnvioV2;
+
 @Service
 public class Conversor {
 	
-	public static final String CODIGO_ORGANISMO_EMISOR = "U01800001";
-	private ObjectMapper objectMapper = new ObjectMapper();	
+	public static final String CODIGO_ORGANISMO_EMISOR = "COD_ORG_EMISOR";
+	@Autowired
+	ObjectMapper objectMapper;	
 /**
  * Función encargada de convertir los datos de entrada de la petición rest de alta de remesa
  * de envíos a los datos de entrada de la petición equivalente al servicio SOAP
  * @param peticion
  * @return
  */
-	public AltaRemesaEnvios convierteAltaRemesaEnviosJsonToSOAP(Remesa peticion) {
+	public AltaRemesaEnvios convierteAltaRemesaEnviosJsonToSOAP(Remesa peticion) throws Exception {
 		AltaRemesaEnvios peticionWS = null;
 		
 		try {
 			peticionWS = new AltaRemesaEnvios();
 			peticionWS.setCodigoOrganismoEmisor(CODIGO_ORGANISMO_EMISOR);
-			
 			peticionWS.setTipoEnvio( peticion.getTipoEnvio());
 			peticionWS.setConcepto(peticion.getConcepto());
 			peticionWS.setDescripcion(peticion.getDescripcion());
-			
-			
-			
 			peticionWS.setFechaEnvioProgramado(DatatypeFactory.newInstance().newXMLGregorianCalendar(peticion.getFechaEnvioProgramado()));
 			peticionWS.setProcedimiento(peticion.getProcedimiento());
 
@@ -56,7 +54,7 @@ public class Conversor {
 			}
 
 			if (peticion.getEnvios() != null) {
-				peticionWS.setEnvios(convierteEnviosJsonToSOAP(peticion.getEnvios()));
+				peticionWS.setEnvios(convierteEnviosRestToSOAP(peticion.getEnvios()));
 			}
 
 			if (peticion.getOpcionesRemesa() != null) {
@@ -66,20 +64,57 @@ public class Conversor {
 					 https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.Opcion opcion = new  https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.Opcion();
 					opcion.setTipo(opcionPeticion.getTipo());
 					opcion.setValue(opcionPeticion.getValue());
-					
 				}
 				peticionWS.setOpcionesRemesa(opcionesMinis);
 			}
-		} catch (DatatypeConfigurationException e) {
+		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			
+			throw e;
 		}
 
 		return peticionWS;
 	}
-	 
 	
-	private https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.Envios convierteEnviosJsonToSOAP(Envios enviosRest) {
+	/**
+	 * Esta función retorna en objeto aplicable a REST
+	 * @param resultadoSOAP
+	 * @return
+	 */
+	public Remesa convierteResultadoAltaRemesaSoapToRest(ResultadoAltaRemesaEnvios resultadoSOAP) throws Exception {
+		Remesa resultado = new Remesa();
+		//Recuperar todos los datos del resultado SOAP y asignarlos al objeto de retorno del servicio REST
+		List<ResultadoEnvio> envios = resultadoSOAP.getResultadoEnvios().getItem();
+		for (Iterator iterator = envios.iterator(); iterator.hasNext();) {
+			Envio resultEnvio= new Envio();
+			ResultadoEnvio resultEnvioSoap = (ResultadoEnvio) iterator.next();
+			resultEnvio.setIdentificador(resultEnvioSoap.getIdentificador());
+			
+			resultado.getEnvios().getEnvio().add(resultEnvio);
+		}
+		
+		return resultado;
+	}
+	
+	/**
+	 * Este método se encarga de convertir el resultado de la llamada de obtendión de informacion de un envío a 
+	 * formato admitido por la respuestas del API REST 
+	 * @param resultadoSOAP
+	 * @return
+	 * @throws Exception
+	 */
+	public Envio convierteResultadoInfoEnvioV2SoapToRest(ResultadoInfoEnvioV2 resultInfoEnvio) throws Exception {
+		Envio resultREST= new Envio();
+		resultREST.setIdentificador(resultInfoEnvio.getIdentificador());
+		resultREST.setEstado(resultInfoEnvio.getIdentificador());
+		resultREST.setFechaCaducidad(resultInfoEnvio.getFechaCaducidad().toGregorianCalendar());
+		resultREST.setFechaPuestaDisposicion(resultInfoEnvio.getFechaPuestaDisposicion().toGregorianCalendar());
+		resultREST.setFechaCreacion(resultInfoEnvio.getFechaCreacion().toGregorianCalendar());
+		////Recuperar todos los datos del resultado SOAP y asignarlos al objeto de retorno del servicio REST
+		return resultREST;
+	}
+	
+	private https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.Envios convierteEnviosRestToSOAP(Envios enviosRest) {
 		https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.Envios enviosMinis = new https.administracionelectronica_gob_es.notifica.ws.notificaws_v2._1_0.altaremesaenvios.Envios();
 
 		for (Envio envioRest : enviosRest.getEnvio()) {
@@ -150,18 +185,9 @@ public class Conversor {
 		return documentoMinis;
 	}
 
-	/**
-	 * Función encargada de convertir los datos de entrada de la petición rest de información
-	 * de envío a los datos de entrada de la petición equivalente al servicio SOAP
-	 * @param env
-	 * @return
-	 */
-	public InfoEnvioV2 convierteInfoEnvioV2JsonToSOAP(Envio env) {
-		InfoEnvioV2 infoEnvioV2= new InfoEnvioV2();
-		
-		
-		return infoEnvioV2;
-	}
+
+
+
 	
 	
 }
